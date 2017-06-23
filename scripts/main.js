@@ -1,19 +1,36 @@
 var map, center, infowindow, locationType = [];
 var request, service, markers = [], marker_me;
+var mapDoc = $("#map");
 
 function initialize() {
-  locationType.push("restaurant");
+  locationType.push(document.forms[0].locations.value);
   
   if (navigator.geolocation) {
-		navigator.geolocation.getCurrentPosition(displayLocation, errorCallback, {timeout:10000});
+		navigator.geolocation.getCurrentPosition(displayLocation, showError, {timeout:10000});
 	}
 	else {
-		alert("no geolocation!");
+		alert("browser not support geolocation");
 	} 
 }
 
-function errorCallback() {
-  console.log("geolocation error call");
+//function errorCallback() {
+//  console.log("geolocation error call");
+//}
+function showError(error) {
+  switch(error.code) {
+    case error.PERMISSION_DENIED:
+      mapDoc.innerHTML = "User denied the request for Geolocation."
+      break;
+    case error.POSITION_UNAVAILABLE:
+      mapDoc.innerHTML = "Location information is unavailable."
+      break;
+    case error.TIMEOUT:
+      mapDoc.innerHTML = "The request to get user location timed out."
+      break;
+    case error.UNKNOWN_ERROR:
+      mapDoc.innerHTML = "An unknown error occurred."
+      break;
+  }
 }
 
 function displayLocation(position) {
@@ -83,7 +100,6 @@ function createMarker(place) {
   google.maps.event.addListener(marker, "click", function() {
     infowindow.setContent(place.name);
     infowindow.open(map, this);
-    alert(marker.getPosition());
   });
 
   return marker;      
@@ -96,9 +112,14 @@ function clearResults() {
   markers = [];
 }  
 
+function userSelectLocation() {
+  locationType = [];
+  locationType.push(document.forms[0].locations.value);
+  google.maps.event.trigger(map, 'rightclick');
+}
+
 google.maps.event.addDomListener(window, 'load', initialize);
 
 window.onload = function() {
   
 };
-
