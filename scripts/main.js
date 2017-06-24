@@ -13,9 +13,6 @@ function initialize() {
 	} 
 }
 
-//function errorCallback() {
-//  console.log("geolocation error call");
-//}
 function showError(error) {
   switch(error.code) {
     case error.PERMISSION_DENIED:
@@ -66,7 +63,7 @@ function placeMeOnMap() {
   var opt = {
     position: center,
     map: map,
-    icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+    icon: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
     animation: google.maps.Animation.DROP,
     clickable: true    
   }
