@@ -1,9 +1,14 @@
 var map, center, infowindow, locationType = [];
 var request, service, markers = [], marker_me;
 var mapDoc = $("#map");
+var detailAddress;
 
 function initialize() {
-  locationType.push(document.forms[0].locations.value);
+  builtDropDownLocation();
+  
+  if (locationType.length == 0) {
+    locationType.push(document.forms[0].locations.value);
+  }
   
   if (navigator.geolocation) {
 		navigator.geolocation.getCurrentPosition(displayLocation, showError, {timeout:10000});
@@ -31,7 +36,9 @@ function showError(error) {
 }
 
 function displayLocation(position) {
-  center = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+  if (!center) {
+    center = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+  }
   map = new google.maps.Map(document.getElementById('map'), {
     center: center,
     zoom: 14
@@ -40,6 +47,7 @@ function displayLocation(position) {
   infowindow = new google.maps.InfoWindow();
   service = new google.maps.places.PlacesService(map);
   
+  clearResults();
   placeMeOnMap();
   placeSearchResultOnMap();
 
@@ -52,12 +60,20 @@ function displayLocation(position) {
       center = event.latLng;
     }
     map.setCenter(center);
-    clearResults();
     
+    clearResults();
     placeMeOnMap();
     placeSearchResultOnMap();
   });        
 }
+
+function clearResults() {
+  for (var i=0; i<markers.length; i++) {
+    markers[i].setMap(null);
+  }
+  markers = [];
+  $("ul.locations").empty();
+}  
 
 function placeMeOnMap() {
   var opt = {
@@ -66,8 +82,13 @@ function placeMeOnMap() {
     icon: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
     animation: google.maps.Animation.DROP,
     clickable: true    
-  }
+  };
   marker_me = new google.maps.Marker(opt);
+  
+  marker_me.addListener('click', function() {
+    infowindow.setContent("I'm here.")
+    infowindow.open(map, marker_me);
+  });  
 }
 
 function placeSearchResultOnMap() {
@@ -82,32 +103,41 @@ function placeSearchResultOnMap() {
 function callback(results, status) {
   if (status == google.maps.places.PlacesServiceStatus.OK) {
     for (var i=0; i<results.length; i++) {
-      markers.push(createMarker(results[i]));
+      createMarker(results[i]);
     }
   }
 }
 
 function createMarker(place) {
-  var placeLoc = place.geometry.location;
-    marker = new google.maps.Marker( {
-    map: map,
-    position: place.geometry.location
-  });   
+  var request = { reference: place.reference };
+  service.getDetails(request, function(details, status) {
+    
+    if (details != null) {
+      
+      var marker = new google.maps.Marker( {
+        map: map,
+        position: place.geometry.location
+      });   
 
-  google.maps.event.addListener(marker, "click", function() {
-    infowindow.setContent(place.name);
-    infowindow.open(map, this);
+      markers.push(marker);
+      $("ul.locations").append("<li><a onClick=\"getDirections(\'" + details.formatted_address + "\', " 
+                              + "\'" + details.name + "\', "
+                              + "\'" + details.formatted_phone_number + "\'"
+                              + ")\">" + details.name + "</a></li>"); 
+      google.maps.event.addListener(marker, 'click', function() {
+        infowindow.setContent("<h5>" + details.name + "</h5>" 
+                              + details.formatted_phone_number 
+                              + "<br />"
+                              + "<a onClick=\"getDirections(\'" + details.formatted_address + "\', " 
+                              + "\'" + details.name + "\', "
+                              + "\'" + details.formatted_phone_number + "\'"
+                              + ")\">" + "route me" + "</a>"
+                             );
+        infowindow.open(map, this);        
+      });
+    }
   });
-
-  return marker;      
 }     
-
-function clearResults() {
-  for (var i=0; i<markers.length; i++) {
-    markers[i].setMap(null);
-  }
-  markers = [];
-}  
 
 function userSelectLocation() {
   locationType = [];
@@ -115,8 +145,32 @@ function userSelectLocation() {
   google.maps.event.trigger(map, 'rightclick');
 }
 
-google.maps.event.addDomListener(window, 'load', initialize);
+function builtDropDownLocation() {
+  var data = {
+    'cafe': 'Cafe',
+    'restaurant': 'Restaurant',
+    'book_store': 'Book store',
+    'atm': 'ATM',
+    'cafe': 'Cafe',
+    'shopping_mall': 'Shopping mall'
+  }
 
-window.onload = function() {
-  
-};
+  var s = $("<select id='locations' onchange='userSelectLocation()' />");
+
+  for(var val in data) {
+    $('<option />', {value: val, text: data[val]}).appendTo(s);
+  }
+  f = $("<form />").text("Location: ");
+  u = $("<ul class='locations' />")
+  s.appendTo(f);
+  $("#panel").empty().append(f).append(u);
+
+  if (locationType != "") {
+    $("#locations").val(locationType);
+  }
+}
+
+$(document).ready(function(){
+  initialize();
+});
+

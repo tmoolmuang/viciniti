@@ -1,0 +1,45 @@
+var directionsDisplay;
+var directionsService = new google.maps.DirectionsService();
+var directionsMap;
+var destination_address, destination_name, destination_phone;
+
+function getDirections(d, name, phone) {
+  destination_address = d;
+  destination_name = name;
+  destination_phone = phone;
+  
+  formatPanel();
+  directionsDisplay = new google.maps.DirectionsRenderer();
+  var directionsOptions = {
+    zoom: 14,
+    center: center
+  }
+  directionsMap = new google.maps.Map(document.getElementById('map'), directionsOptions);
+  directionsDisplay.setMap(directionsMap);
+  calcRoute();
+  return true;
+}
+
+function calcRoute() {
+  var request = {
+    origin: center,
+    destination: destination_address,
+    travelMode: google.maps.TravelMode.DRIVING
+  };
+
+  directionsService.route(request, function(result, status) {
+    if (status == google.maps.DirectionsStatus.OK) {
+      directionsDisplay.setDirections(result);
+    }
+  });
+}
+
+function formatPanel() {
+  var des = "<h4>" + destination_name 
+    + "</h4><h5>" + destination_address 
+    + "<br /><br />" + destination_phone
+    + "</h5><br /><br />";
+  var backButton = 
+      "<button onclick='initialize()'>Back to Search</button>";
+  $("#panel").empty().append(des).append(backButton);
+}
