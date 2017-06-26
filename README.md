@@ -1,4 +1,4 @@
-# Viciniti  [![Build Status](https://travis-ci.org/tmoolmuang/metrics.svg?branch=master)](https://travis-ci.org/tmoolmuang/metrics)
+# Viciniti 
 
 A web application that allows travelers to search for nearby cafe, restaurant, ATM, etc.
 It's a complete app that will let you select and route the direction to your destination.
