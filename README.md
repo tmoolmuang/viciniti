@@ -20,3 +20,5 @@ This app was created as part of the [Bloc](http://www.bloc.io) Web Developer Tra
 
  
 ![viciniti](https://user-images.githubusercontent.com/24881495/27558971-b90d7990-5a73-11e7-8171-2c532b235860.JPG)
+
+*Metrics analysis has been added. View report here: [metrics report](https://metrics-tm.herokuapp.com/apps/demoapps)
