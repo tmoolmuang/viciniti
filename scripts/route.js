@@ -32,6 +32,9 @@ function calcRoute() {
       directionsDisplay.setDirections(result);
     }
   });
+  
+  //metrics report
+  Metrics.report("route request");
 }
 
 function formatPanel() {

@@ -143,6 +143,9 @@ function userSelectLocation() {
   locationType = [];
   locationType.push(document.forms[0].locations.value);
   google.maps.event.trigger(map, 'rightclick');
+  
+  //metrics report
+  Metrics.report("search: " + locations.value);
 }
 
 function builtDropDownLocation() {
@@ -169,6 +172,15 @@ function builtDropDownLocation() {
     $("#locations").val(locationType);
   }
 }
+
+var Metrics = {};
+Metrics.report = function(eventName){
+  var event = {event: { name: eventName }};
+  var request = new XMLHttpRequest();
+  request.open("POST", "https://metrics-tm.herokuapp.com/api/events", true); /* https://metrics-tm.herokuapp.com */
+  request.setRequestHeader('Content-Type', 'application/json');
+  request.send(JSON.stringify(event));
+};
 
 $(document).ready(function(){
   initialize();
