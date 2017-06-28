@@ -120,17 +120,21 @@ function createMarker(place) {
       });   
 
       markers.push(marker);
-      $("ul.locations").append("<li><a onClick=\"getDirections(\'" + details.formatted_address + "\', " 
-                              + "\'" + details.name + "\', "
-                              + "\'" + details.formatted_phone_number + "\'"
-                              + ")\">" + details.name + "</a></li>"); 
+
+      var $li = $("<li><a>" + details.name + "</a></li>").attr("id", details.id);
+      $("ul.locations").append($li);
+    
+      (function (details) {
+        $($("[id=" + details.id + "]")).click(function(){
+          getDirections(details);
+        });
+      }(details));      
+     
       google.maps.event.addListener(marker, 'click', function() {
         infowindow.setContent("<h5>" + details.name + "</h5>" 
                               + details.formatted_phone_number 
                               + "<br />"
-                              + "<a onClick=\"getDirections(\'" + details.formatted_address + "\', " 
-                              + "\'" + details.name + "\', "
-                              + "\'" + details.formatted_phone_number + "\'"
+                              + "<a onClick=\"findLocationId(\'" + details.id + "\'" 
                               + ")\">" + "route me" + "</a>"
                              );
         infowindow.open(map, this);        
