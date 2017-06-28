@@ -3,10 +3,10 @@ var directionsService = new google.maps.DirectionsService();
 var directionsMap;
 var destination_address, destination_name, destination_phone;
 
-function getDirections(d, name, phone) {
-  destination_address = d;
-  destination_name = name;
-  destination_phone = phone;
+function getDirections(d) {
+  destination_address = d.formatted_address;
+  destination_name = d.name;
+  destination_phone = d.formatted_phone_number;
   
   formatPanel();
   directionsDisplay = new google.maps.DirectionsRenderer();
@@ -42,4 +42,8 @@ function formatPanel() {
   var backButton = 
       "<button onclick='initialize()'>Back to Search</button>";
   $("#panel").empty().append(des).append(backButton);
+}
+
+function findLocationId(locId) {
+  $($("[id=" + locId + "]")).click();
 }
